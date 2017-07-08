@@ -226,7 +226,11 @@ Server.hasMany(Stats, {foreignKey: 'server_id'});
 Stats.belongsTo(Server, {foreignKey: 'server_id'});
 
 
+while(true) {
 
+}
+
+/*
 sequelize.sync({
     alter: false
 }).then(function () {
@@ -241,7 +245,7 @@ sequelize.sync({
         start();
     });
 });
-
+*/
 
 function openConnections() {
     for(var index = 0; index < servers.length; index++) {
