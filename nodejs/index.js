@@ -5,7 +5,7 @@
 // Atualizar `servers` com status
 // Handlar ECONNRESET
 
-
+// /usr/bin/node /home/runcloud/webapps/server-dashboard-staging/nodejs/index.js > /home/runcloud/webapps/server-dashboard-staging/nodejs/logs.log
 // Refratorar codigo para suportar varios servidores
 // Buscar servidores a serem analisados do banco de dados
 
@@ -18,22 +18,23 @@ var Rcon      = require('rcon');
 var request   = require('request');
 var Sequelize = require('sequelize');
 var colors    = require('colors');
-
+var fs        = require('fs');
+var util      = require('util');
 
 /*************
 ** CONTANTS **
 **************/ 
 
 
-var STATS_INTERVAL  = 1000; //ms
-var STATUS_INTERVAL = 1000;
+var STATS_INTERVAL  = 5000; //ms
+var STATUS_INTERVAL = 5000;
 
 
-var DB_TABLE       = 'homestead';
-var DB_USER        = 'homestead';
-var DB_PASS        = 'secret';
+var DB_TABLE       = 'server_dashboard_staging';
+var DB_USER        = 'server_dashboard_staging';
+var DB_PASS        = 'JSwV_v3W5_%-DFXbnCa.81PNRkobDdyK';
 var DB_HOST        = 'localhost';
-var DB_PORT        = 33060;
+var DB_PORT        = 3306;
 var DB_TIMEOUT     = 5;
 
 
@@ -42,7 +43,14 @@ var DB_TIMEOUT     = 5;
 *********************/ 
 
 
-var servers = [];
+var servers = [
+   /*{
+        name: "FFA-1",
+        ip: "177.54.147.29",
+        port: 27032,
+        rcon_password: "twitchtvdenerdtvstream"
+    }*/
+];
 var connections = [];
 
 
@@ -56,6 +64,20 @@ var sequelize = new Sequelize(DB_TABLE, DB_USER, DB_PASS, {
     port: DB_PORT,
     logging: false
 });
+
+/************************
+** STDOUT REDIRECTIONS **
+*************************/
+
+var log_file = fs.createWriteStream(__dirname + '/logs/logs.log', {flags : 'w'});
+var log_stdout = process.stdout;
+
+console.log = function(d) { //
+  log_file.write(util.format(d) + '\n');
+  log_stdout.write(util.format(d) + '\n');
+};
+
+console.log('redirected output');
 
 
 /*******************
@@ -226,11 +248,7 @@ Server.hasMany(Stats, {foreignKey: 'server_id'});
 Stats.belongsTo(Server, {foreignKey: 'server_id'});
 
 
-while(true) {
 
-}
-
-/*
 sequelize.sync({
     alter: false
 }).then(function () {
@@ -245,33 +263,38 @@ sequelize.sync({
         start();
     });
 });
-*/
+
 
 function openConnections() {
     for(var index = 0; index < servers.length; index++) {
-        (function (i){
-            console.log(servers[i].port);
-            connections[i] = new Rcon(servers[i].ip, servers[i].port, servers[i].rcon_password);
-
-
-            connections[i].on('auth', function() {
-                console.log(("Authed on server " + i + "!").green);
-
-            }).on('response', function(str) {
-                processResponse(str, i);
-
-            }).on('end', function() {
-              console.log(("Socket " + i + " closed!").green);
-              process.exit();
-
-            }).on('error', function() {
-                console.log('is this it?'.blue);
-            });
-
-            connections[i].connect();
-        })(index)
-        
+  
+        connections[index] = createConnection(index, servers[index].ip, servers[index].port, servers[index].rcon_password);
+        connections[index].connect();
     }
+}
+
+function createConnection(id, ip, port, rcon_password) {
+    var connection = new Rcon(ip, port, rcon_password);
+
+    (function (i, ip, port, rcon_password){
+        connection.on('auth', function() {
+            console.log(("Authed on server " + i + "!").green);
+
+        }).on('response', function(str) {
+            processResponse(str, i);
+
+        }).on('end', function() {
+          console.log(("Socket " + i + " closed!").green);
+
+        }).on('error', function(err) {
+            console.log("ERROR: " + err);
+            console.log('Trying to reopen connection to server ' + i);
+            connections[i] = createConnection(i, ip, port, rcon_password);
+            connections[i].connect();
+        });
+    })(id, ip, port, rcon_password)
+
+    return connection;
 }
 
 function processResponse(str, connIndex) {
@@ -293,6 +316,7 @@ function processStatsResponse(str, connIndex) {
         parsed.server_id = servers[connIndex].id;
         parsed.request_interval = STATS_INTERVAL;
         
+        console.log('Before creating stats entry');
         Stats.create(parsed).then(function(stat){
             console.log(('Successfuly inserted stat into database with ID: ' + String(stat.id).bold + ' and `server_id`: ' + String(stat.server_id).bold).green);
         }); 
@@ -303,9 +327,12 @@ function processStatsResponse(str, connIndex) {
     }
 }
 
-function processStatusResponse(str, connIndex) {
-    console.log(('Received Status RCON response from ' + connIndex).green)
+process.on('uncaughtException', function (err) {
+  console.log('Caught exception: ' + err);
+});
 
+function processStatusResponse(str, connIndex) {
+    console.log(('Received Status RCON response from ' + connIndex).green);
     var parsed = parseStatusCommand(str, connIndex);
 
     if(parsed != undefined) {
@@ -330,11 +357,11 @@ function isStatsResponse(str) {
 }
 
 function start() {
-	setInterval(function() {
+    setInterval(function() {
         for(var i = 0; i < connections.length; i++) {
-		   connections[i].send('stats');
+           connections[i].send('stats');
         }
-	}, STATS_INTERVAL);
+    }, STATS_INTERVAL);
 
 
     setInterval(function() {
@@ -362,7 +389,7 @@ function parseStatsCommand(str, connIndex) {
 }
 
 function parseStatusCommand(str, connIndex) {
-    console.log(str);
+    //console.log(str);
 
     dataObject = {
         hostname: findBetween(str, 'hostname: '),
@@ -393,8 +420,8 @@ function parsePlayerList(str) {
         var dbColumns = ['userid', 'name', 'uniqueid', 'connected', 'ping', 'loss', 'state', 'rate', 'adr'];
 
         if(playerInfo != undefined) {
-            for(var i = 0; i < dbColumns.length; i++) {
-                player[dbColumns[i]] = playerInfo[i + 2];
+            for(var j = 0; j < dbColumns.length; j++) {
+                player[dbColumns[j]] = playerInfo[j + 2];
             }
         } else {
             console.log('Received `undefined` playerInfo - maybe empty, maybe bad response'.yellow.bold);
