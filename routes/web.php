@@ -27,8 +27,8 @@ Route::group(['middleware' => 'check-steam-login'], function () {
     /**
      * Servers
      */
-    Route::get('/servers/manage/{id}', 'ServersController@manage')->name('servers-manage');
-    Route::get('/servers/{id?}', 'ServersController@index')->name('servers');
+    Route::get('/servers/{id}', 'ServersController@manage')->name('servers-manage');
+    Route::get('/servers', 'ServersController@index')->name('servers');
 
     /**
      * Settings
