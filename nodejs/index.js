@@ -43,14 +43,7 @@ var DB_TIMEOUT     = 5;
 *********************/ 
 
 
-var servers = [
-   /*{
-        name: "FFA-1",
-        ip: "177.54.147.29",
-        port: 27032,
-        rcon_password: "twitchtvdenerdtvstream"
-    }*/
-];
+var servers = [];
 var connections = [];
 
 
@@ -256,6 +249,8 @@ var DaemonLogs = sequelize.define('daemon_logs', {
         type: 'TIMESTAMP',
         defaultValue: Sequelize.literal('CURRENT_TIMESTAMP'),
     }
+}, {
+    freezeTableName: true,
 });
 
 
@@ -486,7 +481,7 @@ function dbLog(message, log) {
     };
 
     DaemonLogs.create(content).then(function(log) {
-        console.log(('Successfuly inserted log into database with ID: ' + String(status.id).bold + ' and `server_id`: ' + String(status.server_id).bold).green);
+        console.log(('Successfuly inserted log into database with ID: ' + String(log.id).bold).green);
     });
 }
 
