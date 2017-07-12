@@ -251,6 +251,7 @@ var DaemonLogs = sequelize.define('daemon_logs', {
     }
 }, {
     freezeTableName: true,
+    timestamps: false
 });
 
 
