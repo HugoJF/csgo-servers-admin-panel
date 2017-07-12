@@ -480,7 +480,7 @@ function dbLog(message, log) {
     var content = {
         message: message,
         log: log,
-    }
+    };
 
     DaemonLogs.create(content).then(function(log) {
         console.log(('Successfuly inserted log into database with ID: ' + String(status.id).bold + ' and `server_id`: ' + String(status.server_id).bold).green);
