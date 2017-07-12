@@ -22,7 +22,7 @@ class AuthController extends Controller
     {
         if ($this->steam->validate()) {
             $info = $this->steam->getUserInfo();
-            if (!is_null($info) && $info->steamID64 == '76561198033283983') {
+            if (!is_null($info) && ($info->steamID64 == '76561198033283983' || $info->steamID64 == '76561198056842024')) {
                 $user = User::where('steamid', $info->steamID64)->first();
                 if (is_null($user)) {
                     $user = User::create([
