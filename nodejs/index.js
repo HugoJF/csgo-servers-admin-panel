@@ -1,34 +1,20 @@
-/*********
-** TODO **
-**********/
-// Decidir como auto-atualizar do banco de dados
-// Atualizar `servers` com status
-// Handlar ECONNRESET
-
-// /usr/bin/node /home/runcloud/webapps/server-dashboard-staging/nodejs/index.js > /home/runcloud/webapps/server-dashboard-staging/nodejs/logs.log
-// Refratorar codigo para suportar varios servidores
-// Buscar servidores a serem analisados do banco de dados
-
-
-
 /*****************
 ** DEPENDENCIES **
+
 ******************/
 var Rcon      = require('rcon');
 var request   = require('request');
 var Sequelize = require('sequelize');
-var colors    = require('colors');
 var fs        = require('fs');
 var util      = require('util');
+
 
 /*************
 ** CONTANTS **
 **************/ 
 
-
 var STATS_INTERVAL  = 5000; //ms
 var STATUS_INTERVAL = 5000;
-
 
 var DB_TABLE       = 'server_dashboard_staging';
 var DB_USER        = 'server_dashboard_staging';
@@ -42,7 +28,6 @@ var DB_TIMEOUT     = 5;
 ** GLOBAL VARIABLES **
 *********************/ 
 
-
 var servers = [];
 var connections = [];
 
@@ -51,12 +36,12 @@ var connections = [];
 ** INITIALIZATIONS **
 *********************/ 
 
-
 var sequelize = new Sequelize(DB_TABLE, DB_USER, DB_PASS, {
     host: DB_HOST,
     port: DB_PORT,
     logging: false
 });
+
 
 /************************
 ** STDOUT REDIRECTIONS **
@@ -66,11 +51,11 @@ var log_file = fs.createWriteStream(__dirname + '/logs/logs.log', {flags : 'w'})
 var log_stdout = process.stdout;
 
 console.log = function(d) { //
-  log_file.write(util.format(d) + '\n');
-  log_stdout.write(util.format(d) + '\n');
+    log_file.write(util.format(d) + '\n');
+    log_stdout.write(util.format(d) + '\n');
 };
 
-console.log('redirected output');
+console.log('Redirected console.log output to file');
 
 
 /*******************
@@ -270,12 +255,13 @@ sequelize.sync({
 }).then(function () {
     Server.findAll().then(function(serversQuery) {
         servers = serversQuery;
-        console.log('Servers table acquired!'.green);
+        console.log('Servers table acquired!');
+        log('Servers table acquired', servers);
 
-        console.log('Openning connections...'.green);
+        console.log('Openning connections...');
         openConnections();
 
-        console.log('Starting intervals...'.green);
+        console.log('Starting intervals...');
         start();
     });
 });
@@ -283,7 +269,6 @@ sequelize.sync({
 
 function openConnections() {
     for(var index = 0; index < servers.length; index++) {
-  
         connections[index] = createConnection(index, servers[index].ip, servers[index].port, servers[index].rcon_password);
         connections[index].connect();
     }
@@ -294,17 +279,20 @@ function createConnection(id, ip, port, rcon_password) {
 
     (function (i, ip, port, rcon_password){
         connection.on('auth', function() {
-            console.log(("Authed on server " + i + "!").green);
+            console.log("Authed on server " + i + "!");
+            log('Authenticated on server ' + i);
 
         }).on('response', function(str) {
             processResponse(str, i);
 
-        }).on('end', function() {
-          console.log(("Socket " + i + " closed!").green);
+        }).on('end', function(err) {
+          console.log("Socket " + i + " closed!");
+          log('Socket from server ' + i + ' got closed', err);
 
         }).on('error', function(err) {
             console.log("ERROR: " + err);
             console.log('Trying to reopen connection to server ' + i);
+            log('Error caught on server ' + i + ', recreating connection...', err);
             connections[i] = createConnection(i, ip, port, rcon_password);
             connections[i].connect();
         });
@@ -315,21 +303,21 @@ function createConnection(id, ip, port, rcon_password) {
 
 function processResponse(str, connIndex) {
 
-    dbLog('Receiving response from connection ' + connIndex, str);
+    log('Receiving response from connection ' + connIndex, str);
 
     if(isStatusResponse(str, connIndex)) {
         processStatusResponse(str, connIndex);
     } else if (isStatsResponse(str, connIndex)) {
         processStatsResponse(str, connIndex);
     } else {
-        console.log('Received unknown response'.red);
-        console.log(String(str).black.bgWhite);
+        console.log('Received unknown response: ' + str);
+        log('Received unknown response', str);
     }
 
 }
 
 function processStatsResponse(str, connIndex) {
-    console.log(('Received Stats RCON response from ' + connIndex).green)
+    console.log('Received Stats RCON response from ' + connIndex)
     var parsed = parseStatsCommand(str, connIndex);
     if(parsed != undefined) {
         parsed.server_id = servers[connIndex].id;
@@ -337,21 +325,22 @@ function processStatsResponse(str, connIndex) {
         
         console.log('Before creating stats entry');
         Stats.create(parsed).then(function(stat){
-            console.log(('Successfuly inserted stat into database with ID: ' + String(stat.id).bold + ' and `server_id`: ' + String(stat.server_id).bold).green);
+            console.log('Successfuly inserted stat into database with ID: ' + stat.id + ' and `server_id`: ' + stat.server_id);
         }); 
       
     } else {
-        console.log('Failed to parse stats command.'.red);
-        console.log(String(str).red.bgGray)
+        console.log('Failed to parse stats command. ' + str);
+        log('Failed to parse stats command', str);
     }
 }
 
 process.on('uncaughtException', function (err) {
-  console.log('Caught exception: ' + err);
+    console.log('Caught exception: ' + err);
+    log('Uncaught Exception on process', err);
 });
 
 function processStatusResponse(str, connIndex) {
-    console.log(('Received Status RCON response from ' + connIndex).green);
+    console.log('Received Status RCON response from ' + connIndex);
     var parsed = parseStatusCommand(str, connIndex);
 
     if(parsed != undefined) {
@@ -362,7 +351,7 @@ function processStatusResponse(str, connIndex) {
         parsed.request_interval = STATUS_INTERVAL;
 
         Status.create(parsed).then(function(status) {
-            console.log(('Successfuly inserted status into database with ID: ' + String(status.id).bold + ' and `server_id`: ' + String(status.server_id).bold).green);
+            console.log(('Successfuly inserted status into database with ID: ' + status.id + ' and `server_id`: ' + status.server_id);
         });
     }
 }
@@ -389,7 +378,7 @@ function start() {
         }
     }, STATUS_INTERVAL);
 
-    console.log(('Started setIntervals with ' + STATS_INTERVAL  + 'ms delay.').yellow.bold);
+    console.log('Started setIntervals with ' + STATS_INTERVAL  + 'ms delay.');
 }
 
 
@@ -408,8 +397,6 @@ function parseStatsCommand(str, connIndex) {
 }
 
 function parseStatusCommand(str, connIndex) {
-    //console.log(str);
-
     dataObject = {
         hostname: findBetween(str, 'hostname: '),
         version: findBetween(str, 'version : '),
@@ -443,7 +430,7 @@ function parsePlayerList(str) {
                 player[dbColumns[j]] = playerInfo[j + 2];
             }
         } else {
-            console.log('Received `undefined` playerInfo - maybe empty, maybe bad response'.yellow.bold);
+            console.log('Received `undefined` playerInfo - maybe empty, maybe bad response');
         }
 
         players.push(players);
@@ -472,7 +459,11 @@ function matchAndReturnGroup(str, regex, group = 1) {
     return 'no match';
 }
 
-function dbLog(message, log) {
+/**
+ *  Log function to send logs to the database
+ */
+
+function log(message, log) {
 
     console.log('dbLogging: ' + message + ' ' + log);
 
@@ -482,25 +473,8 @@ function dbLog(message, log) {
     };
 
     DaemonLogs.create(content).then(function(log) {
-        console.log(('Successfuly inserted log into database with ID: ' + String(log.id).bold).green);
+        console.log('Successfuly inserted log into database with ID: ' + log.id);
     }).catch(function (err) {
         console.log('ERROR while creating DaemonLogs: ' + err);
     });
 }
-
-/*
-var stat = 
-  CPU   NetIn   NetOut    Uptime  Maps   FPS   Players  Svms    +-ms   ~tick
-  10.0      0.0      0.0     719    13  134.46       0    0.21    0.62    0.60
-
-hostname: twitch.tv/de_nerdTV - #4 -  DM FFA HS ONLY 128 TICK DUST2 ONLY
-version : 1.35.7.8/13578 491/6752 secure  [G:1:1196974]
-udp/ip  : 177.54.156.142:27018  (public ip: 177.54.156.142)
-os      :  Linux
-type    :  community dedicated
-map     : de_dust2
-players : 0 humans, 0 bots (14/0 max) (not hibernating)
-
-# userid name uniqueid connected ping loss state rate adr
-#end
-*/
