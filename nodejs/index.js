@@ -351,7 +351,7 @@ function processStatusResponse(str, connIndex) {
         parsed.request_interval = STATUS_INTERVAL;
 
         Status.create(parsed).then(function(status) {
-            console.log(('Successfuly inserted status into database with ID: ' + status.id + ' and `server_id`: ' + status.server_id);
+            console.log('Successfuly inserted status into database with ID: ' + status.id + ' and `server_id`: ' + status.server_id);
         });
     }
 }
