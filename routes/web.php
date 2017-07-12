@@ -60,4 +60,9 @@ Route::group(['middleware' => 'check-steam-login'], function () {
      */
     Route::get('/players/{id}/name-history', 'PlayersController@nameHistory')->name('players-name-history');
     Route::get('/players', 'PlayersController@index')->name('players');
+
+    /**
+     * Daemon
+     */
+    Route::get('/daemon-logs/', 'DaemonController@logs')->name('daemon-logs');
 });
