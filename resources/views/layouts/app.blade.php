@@ -76,7 +76,7 @@
                 <li {{ Route::is('players') ? 'class=active' : ''}}><a href="{{ route('players') }}">Players</a></li>
             </ul>
             <ul class="nav nav-sidebar">
-                <li {{ Route::is('players') ? 'class=active' : ''}}><a href="{{ route('daemon-logs') }}">Daemon logs</a></li>
+                <li {{ Route::is('daemon-logs') ? 'class=active' : ''}}><a href="{{ route('daemon-logs') }}">Daemon logs</a></li>
             </ul>
         </div>
 
