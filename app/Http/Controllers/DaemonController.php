@@ -8,10 +8,8 @@ use Illuminate\Http\Request;
 class DaemonController extends Controller
 {
     public function logs() {
-        /*return view('daemon-logs', [
-            logs => DaemonLog::all()
-        ]);*/
-
-        return DaemonLog::all();
+        return view('daemon-logs', [
+            'logs' => DaemonLog::all()
+        ]);
     }
 }
