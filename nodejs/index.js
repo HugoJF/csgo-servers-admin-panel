@@ -474,6 +474,8 @@ function matchAndReturnGroup(str, regex, group = 1) {
 
 function dbLog(message, log) {
 
+    console.log('dbLogging: ' + message + ' ' + log);
+
     var content = {
         message: message,
         log: log,
