@@ -464,13 +464,18 @@ function matchAndReturnGroup(str, regex, group = 1) {
  *  Log function to send logs to the database
  */
 
-function log(message, log) {
+function log(message, log, type = undefined) {
 
     console.log('dbLogging: ' + message + ' ' + log);
+
+    if(type == undefined) {
+        type = 'GENERIC';
+    }
 
     var content = {
         message: message,
         log: log,
+        type: type,
     };
 
     DaemonLogs.create(content).then(function(log) {
