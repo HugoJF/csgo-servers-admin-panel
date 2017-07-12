@@ -246,7 +246,7 @@ var DaemonLogs = sequelize.define('daemon_logs', {
     },
 
     message: Sequelize.STRING,
-    log: Sequelize.STRING,
+    log: Sequelize.TEXT,
 
     created_at: {
         type: 'TIMESTAMP',

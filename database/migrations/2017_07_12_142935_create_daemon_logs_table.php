@@ -17,7 +17,7 @@ class CreateDaemonLogsTable extends Migration
             $table->increments('id');
 
             $table->string('message');
-            $table->string('log');
+            $table->text('log');
 
             $table->timestamps();
         });
