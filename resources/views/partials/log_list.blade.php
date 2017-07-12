@@ -13,7 +13,7 @@
             <tr>
                 <td>{{ $log->id }}</td>
                 <td>{{ $log->message }}</td>
-                <td>{!! str_replace("\n", '<br>', $log->log)!!}</td>
+                <td style="font-family: monospace">{!! str_replace("\n", '<br>', $log->log)!!}</td>
             </tr>
         @empty
             <h2>No Logs found</h2>
