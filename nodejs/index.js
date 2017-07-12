@@ -318,6 +318,9 @@ function createConnection(id, ip, port, rcon_password) {
 }
 
 function processResponse(str, connIndex) {
+
+    dbLog('Receiving response from connection ' + connIndex, str);
+
     if(isStatusResponse(str, connIndex)) {
         processStatusResponse(str, connIndex);
     } else if (isStatsResponse(str, connIndex)) {
