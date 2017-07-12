@@ -47,7 +47,6 @@
         </div>
         <div id="navbar" class="navbar-collapse collapse">
             <ul class="nav navbar-nav navbar-right">
-                <li><a href="{{ route('home') }}">Dashboard</a></li>
                 <li><a href="{{ route('settings') }}">Settings</a></li>
                 <li><a href="{{ route('logout') }}">Logout</a></li>
             </ul>
