@@ -17,7 +17,7 @@
                 <td>{{ $log->type }}</td>
                 <td>{{ $log->message }}</td>
                 <td style="font-family: monospace">{!! str_replace("\n", '<br>', $log->log)!!}</td>
-                <td>{{ $log->created_at }}</td>
+                <td>{{ $log->since() }}</td>
             </tr>
         @empty
             <h2>No Logs found</h2>
