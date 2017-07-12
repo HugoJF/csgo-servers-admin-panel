@@ -8,7 +8,7 @@ use Illuminate\Http\Request;
 class DaemonController extends Controller
 {
     public function logs() {
-        return view('daemon-logs', [
+        return view('logs', [
             'logs' => DaemonLog::all()
         ]);
     }
