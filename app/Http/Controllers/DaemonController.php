@@ -9,7 +9,7 @@ class DaemonController extends Controller
 {
     public function logs() {
         return view('logs', [
-            'logs' => DaemonLog::all()
+            'logs' => DaemonLog::orderBy('created_at', 'desc')->take(15)->get()
         ]);
     }
 }
