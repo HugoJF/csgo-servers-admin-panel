@@ -16,6 +16,7 @@ class CreateDaemonLogsTable extends Migration
         Schema::create('daemon_logs', function (Blueprint $table) {
             $table->increments('id');
 
+            $table->string('message');
             $table->string('log');
 
             $table->timestamps();

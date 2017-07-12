@@ -238,6 +238,26 @@ var PlayersStatus = sequelize.define('player_status', {
     timestamps: false
 });
 
+var DaemonLogs = sequelize.define('daemon_logs', {
+    id: {
+        type: Sequelize.INTEGER.UNSIGNED,
+        primaryKey: true,
+        autoIncrement: true,
+    },
+
+    message: Sequelize.STRING,
+    log: Sequelize.STRING,
+
+    created_at: {
+        type: 'TIMESTAMP',
+        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP'),
+    },
+    updated_at: {
+        type: 'TIMESTAMP',
+        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP'),
+    }
+});
+
 
 /********************
 ** DB RELATIOSHIPS **
@@ -451,6 +471,17 @@ function matchAndReturnGroup(str, regex, group = 1) {
     } 
 
     return 'no match';
+}
+
+function dbLog(message, log) {
+    var content = {
+        message: message,
+        log: log,
+    }
+
+    DaemonLogs.create(content).then(function(log) {
+        console.log(('Successfuly inserted log into database with ID: ' + String(status.id).bold + ' and `server_id`: ' + String(status.server_id).bold).green);
+    });
 }
 
 /*
