@@ -473,8 +473,6 @@ function matchAndReturnGroup(str, regex, group = 1) {
 
 function dbLog(message, log) {
 
-    console.log('dbLogging: ' + message + ' <_> ' + log);
-
     var content = {
         message: message,
         log: log,
@@ -482,6 +480,8 @@ function dbLog(message, log) {
 
     DaemonLogs.create(content).then(function(log) {
         console.log(('Successfuly inserted log into database with ID: ' + String(log.id).bold).green);
+    }).catch(function (err) {
+        console.log('ERROR while creating DaemonLogs: ' + err);
     });
 }
 
