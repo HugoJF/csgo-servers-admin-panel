@@ -9,6 +9,7 @@
             <th>OS</th>
             <th>Type</th>
             <th>Map</th>
+            <th>Since</th>
         </tr>
         </thead>
         <tbody>
@@ -22,6 +23,7 @@
                 <td>{{ $s->os }}</td>
                 <td>{{ $s->type }}</td>
                 <td>{{ $s->map }}</td>
+                <td>{{ $s->since() }}</td>
             </tr>
         @empty
             <h2>No Status found</h2>

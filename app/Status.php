@@ -2,11 +2,14 @@
 
 namespace App;
 
+use App\Http\Traits\SinceTime;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 
 class Status extends Model
 {
+    use SinceTime;
+
     protected $guarded = ['id', 'server_id'];
 
     protected $table = 'status';
@@ -19,15 +22,6 @@ class Status extends Model
     public function players()
     {
         return $this->belongsToMany('App\Player')->withTimestamps();
-    }
-
-
-    public function since() {
-        $date = new Carbon($this->created_at);
-
-        $diff = $date->diffForHumans();
-
-        return $diff;
     }
 
     public function getMaxPlayers()

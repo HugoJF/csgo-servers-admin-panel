@@ -12,6 +12,7 @@
             <th>Svms</th>
             <th>Svms/stdv</th>
             <th>var</th>
+            <th>Since</th>
         </tr>
         </thead>
         <tbody>
@@ -28,6 +29,7 @@
                 <td>{{ $s->svms }}</td>
                 <td>{{ $s->svms_stdv }}</td>
                 <td>{{ $s->var }}</td>
+                <td>{{ $s->since() }}</td>
             </tr>
         @empty
             <h2>No servers added</h2>

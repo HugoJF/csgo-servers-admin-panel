@@ -2,25 +2,19 @@
 
 namespace App;
 
+use App\Http\Traits\SinceTime;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 
 class Stats extends Model
 {
+    use SinceTime;
+
     protected $guarded = ['id', 'server_id', 'status_id'];
 
     public function server()
     {
         return $this->belongsTo('App\Server');
-    }
-
-
-    public function since() {
-        $date = new Carbon($this->created_at);
-
-        $diff = $date->diffForHumans();
-
-        return $diff;
     }
 
     public function getNetInAttribute($value) {

@@ -2,13 +2,14 @@
 
 @section('content')
     <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
-        <h1 class="sub-header">Status</h1>
+        <h1 class="sub-header">Stats</h1>
 
-        @include('partials.status_list', [
-            'status' => $status
+        @include('partials.stats_list', [
+            'stats' => $stats
         ])
 
-        {{ $status->links() }}
+
+        {{ $stats->links() }}
 
     </div>
 @endsection

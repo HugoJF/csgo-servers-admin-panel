@@ -12,6 +12,8 @@ class StatsController extends Controller
 {
     public function index()
     {
-        return Stats::all();
+        return view('stats', [
+            'stats' => Stats::orderBy('created_at', 'DESC')->paginate(15),
+        ]);
     }
 }
