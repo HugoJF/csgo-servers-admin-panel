@@ -282,6 +282,7 @@ function openConnections() {
     for(var index = 0; index < servers.length; index++) {
         connections[index] = createConnection(index, servers[index].ip, servers[index].port, servers[index].rcon_password);
         connections[index].connect();
+        connectionLastSeen[index] = (new Date).getTime();
     }
 }
 
@@ -312,6 +313,7 @@ function createConnection(id, ip, port, rcon_password) {
             var deltaTime = ((new Date).getTime() - connectionLastSeen[i]) / 1000 / 60;
 
             if(Math.round(deltaTime) > offlineNotificationIntervals[errorNotifications[i]]) {
+                console.log('Sending notifications that server is offline');
                 notifyConnectionError(i, Math.round(deltaTime))
                 errorNotifications[i]++;
             }
