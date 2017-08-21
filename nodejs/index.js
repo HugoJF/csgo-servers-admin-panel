@@ -24,6 +24,10 @@ var DB_HOST        = 'localhost';
 var DB_PORT        = 3306;
 var DB_TIMEOUT     = 5;
 
+var EMAIL_FROM = '';
+var EMAIL_TO = '';
+var EMAIL_URL = '';
+
 
 /*********************
 ** GLOBAL VARIABLES **
@@ -259,6 +263,7 @@ console.log('notified?');
 sequelize.sync({
     alter: false
 }).then(function () {
+    sendEmail('Daemon is up and running again');
     Server.findAll().then(function(serversQuery) {
         servers = serversQuery;
         console.log('Servers table acquired!');
@@ -318,15 +323,19 @@ function createConnection(id, ip, port, rcon_password) {
 }
 
 function notifyConnectionError(i, deltaTime) {
+    sendEmail("Server is offline for " + Math.round(deltaTime) + "minutes", 'ya that sucks');
+}
+
+function sendEmail(subject, text) {
     var postData = {
-        from: "FROM",
-        to: "TO",
+        from: EMAIL_FROM,
+        to: EMAIL_TO,
         subject: "Server is offline for " + Math.round(deltaTime) + "minutes",
         text: 'ya that sucks'
     };
 
     var options = {
-        url: 'ENDPOINT',
+        url: EMAIL_URL,
         method: 'POST',
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded'
