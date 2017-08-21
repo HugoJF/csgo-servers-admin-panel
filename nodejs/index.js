@@ -296,6 +296,9 @@ function createConnection(id, ip, port, rcon_password) {
         }).on('response', function(str) {
             processResponse(str, i);
             connectionLastSeen[i] = (new Date).getTime();
+			if(errorNotifications[i] > 0) {
+				sendEmail('Server is back online', 'yup back online PogoChampo');
+			}
             errorNotifications[i] = 0;
 
         }).on('end', function(err) {
