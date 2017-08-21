@@ -325,15 +325,15 @@ function createConnection(id, ip, port, rcon_password) {
 }
 
 function notifyConnectionError(i, deltaTime) {
-    sendEmail("Server is offline for " + Math.round(deltaTime) + "minutes", 'ya that sucks');
+    sendEmail("Server is offline for " + Math.round(deltaTime) + "minutes", "ya that sucks");
 }
 
-function sendEmail(subject, text) {
+function sendEmail(subject, textData) {
     var postData = {
         from: EMAIL_FROM,
         to: EMAIL_TO,
         subject: subject,
-        text: text
+        text: textData
     };
 
     var options = {
