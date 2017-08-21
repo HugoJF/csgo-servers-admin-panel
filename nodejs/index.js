@@ -330,8 +330,8 @@ function sendEmail(subject, text) {
     var postData = {
         from: EMAIL_FROM,
         to: EMAIL_TO,
-        subject: "Server is offline for " + Math.round(deltaTime) + "minutes",
-        text: 'ya that sucks'
+        subject: subject,
+        text: text
     };
 
     var options = {
