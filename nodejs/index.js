@@ -334,6 +334,8 @@ function sendEmail(subject, textData) {
         text: textData
     };
 
+    console.log(postData);
+
     var options = {
         url: EMAIL_URL,
         method: 'POST',
