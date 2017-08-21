@@ -298,6 +298,7 @@ function createConnection(id, ip, port, rcon_password) {
             connectionLastSeen[i] = (new Date).getTime();
 			if(errorNotifications[i] > 0) {
 				sendEmail('Server is back online', 'yup back online PogoChampo');
+				console.log('server is back online');
 			}
             errorNotifications[i] = 0;
 
