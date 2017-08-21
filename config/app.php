@@ -181,7 +181,8 @@ return [
 
         Invisnik\LaravelSteamAuth\SteamServiceProvider::class,
         Barryvdh\Debugbar\ServiceProvider::class,
-        Khill\Lavacharts\Laravel\LavachartsServiceProvider::class
+        Khill\Lavacharts\Laravel\LavachartsServiceProvider::class,
+        Gbrock\Table\Providers\TableServiceProvider::class
 
     ],
 
@@ -234,6 +235,7 @@ return [
 
         'Lava' => \Khill\Lavacharts\Laravel\LavachartsFacade::class,
         'Debugbar' => Barryvdh\Debugbar\Facade::class,
+        'Table'      => Gbrock\Table\Facades\Table::class
     ],
 
 ];

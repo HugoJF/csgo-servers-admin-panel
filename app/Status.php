@@ -16,6 +16,8 @@ class Status extends Model
 
     public function server()
     {
+
+
         return $this->belongsTo('App\Server');
     }
 

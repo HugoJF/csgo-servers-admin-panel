@@ -11,7 +11,7 @@ var util      = require('util');
 
 /*************
 ** CONTANTS **
-**************/ 
+**************/
 
 var STATS_INTERVAL  = 5000; //ms
 var STATUS_INTERVAL = 5000;
@@ -26,15 +26,18 @@ var DB_TIMEOUT     = 5;
 
 /*********************
 ** GLOBAL VARIABLES **
-*********************/ 
+*********************/
 
 var servers = [];
 var connections = [];
+var connectionLastSeen = [];
+var errorNotifications = [];
+var offlineNotificationIntervals = [1, 5, 10, 15, 20, 30, 45, 60];
 
 
 /********************
 ** INITIALIZATIONS **
-*********************/ 
+*********************/
 
 var sequelize = new Sequelize(DB_TABLE, DB_USER, DB_PASS, {
     host: DB_HOST,
@@ -60,11 +63,11 @@ console.log('Redirected console.log output to file');
 
 /*******************
 ** DB DEFINITIONS **
-********************/ 
+********************/
 
 
 var Server = sequelize.define('servers', {
-    id: { 
+    id: {
         type: Sequelize.INTEGER.UNSIGNED,
         primaryKey: true,
         autoIncrement: true,
@@ -93,12 +96,12 @@ var Server = sequelize.define('servers', {
 });
 
 var Stats = sequelize.define('stats', {
-    id: { 
+    id: {
         type: Sequelize.INTEGER.UNSIGNED,
         primaryKey: true,
         autoIncrement: true,
     },
-    
+
     netin: Sequelize.FLOAT,
     netout: Sequelize.FLOAT,
     uptime: Sequelize.INTEGER,
@@ -128,12 +131,12 @@ var Stats = sequelize.define('stats', {
 });
 
 var Status = sequelize.define('status', {
-    id: { 
+    id: {
         type: Sequelize.INTEGER.UNSIGNED,
         primaryKey: true,
         autoIncrement: true,
     },
-    
+
     hostname: Sequelize.STRING,
     version: Sequelize.STRING,
     udpip: Sequelize.STRING,
@@ -141,7 +144,7 @@ var Status = sequelize.define('status', {
     type: Sequelize.STRING,
     players: Sequelize.STRING,
     map: Sequelize.STRING,
-    
+
     server_id: Sequelize.INTEGER.UNSIGNED,
 
     created_at: {
@@ -159,14 +162,14 @@ var Status = sequelize.define('status', {
     timestamps: false
 });
 var Players = sequelize.define('players', {
-    id: { 
+    id: {
         type: Sequelize.INTEGER.UNSIGNED,
         primaryKey: true,
         autoIncrement: true,
     },
-    
+
     userid: Sequelize.STRING,
-    
+
     status_id: Sequelize.INTEGER.UNSIGNED,
 
     created_at: {
@@ -184,12 +187,12 @@ var Players = sequelize.define('players', {
     timestamps: false
 });;
 var PlayersStatus = sequelize.define('player_status', {
-    id: { 
+    id: {
         type: Sequelize.INTEGER.UNSIGNED,
         primaryKey: true,
         autoIncrement: true,
     },
-    
+
     userid: Sequelize.STRING,
     name: Sequelize.STRING,
     connected: Sequelize.STRING,
@@ -243,7 +246,7 @@ var DaemonLogs = sequelize.define('daemon_logs', {
 
 /********************
 ** DB RELATIOSHIPS **
-*********************/ 
+*********************/
 
 
 Server.hasMany(Stats, {foreignKey: 'server_id'});
@@ -278,6 +281,7 @@ function openConnections() {
 function createConnection(id, ip, port, rcon_password) {
     var connection = new Rcon(ip, port, rcon_password);
 
+
     (function (i, ip, port, rcon_password){
         connection.on('auth', function() {
             console.log("Authed on server " + i + "!");
@@ -285,6 +289,8 @@ function createConnection(id, ip, port, rcon_password) {
 
         }).on('response', function(str) {
             processResponse(str, i);
+            connectionLastSeen[i] = (new Date).getTime();
+            errorNotifications[i] = 0;
 
         }).on('end', function(err) {
           console.log("Socket " + i + " closed!");
@@ -296,10 +302,39 @@ function createConnection(id, ip, port, rcon_password) {
             log('Error caught on server ' + i + ', recreating connection...', err);
             connections[i] = createConnection(i, ip, port, rcon_password);
             connections[i].connect();
+            var deltaTime = ((new Date).getTime() - connectionLastSeen[i]) / 1000 / 60;
+
+            if(Math.round(deltaTime) > offlineNotificationIntervals[errorNotifications[i]]) {
+                notifyConnectionError(i, Math.round(deltaTime))
+                errorNotifications[i]++;
+            }
+
         });
     })(id, ip, port, rcon_password)
 
     return connection;
+}
+
+function notifyConnectionError(i, deltaTime) {
+    var postData = {
+        ip: servers[i].ip,
+        deltaType: deltaTime
+    };
+
+    var options = {
+        url: '',
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        json: postData
+    };
+
+    request(options, function(err, res, body) {
+        if (res && (res.statusCode === 200 || res.statusCode === 201)) {
+            console.log(body);
+        }
+    });
 }
 
 function processResponse(str, connIndex) {
@@ -323,12 +358,12 @@ function processStatsResponse(str, connIndex) {
     if(parsed != undefined) {
         parsed.server_id = servers[connIndex].id;
         parsed.request_interval = STATS_INTERVAL;
-        
+
         console.log('Before creating stats entry');
         Stats.create(parsed).then(function(stat){
             console.log('Successfuly inserted stat into database with ID: ' + stat.id + ' and `server_id`: ' + stat.server_id);
-        }); 
-      
+        });
+
     } else {
         console.log('Failed to parse stats command. ' + str);
         log('Failed to parse stats command', str);
@@ -443,7 +478,7 @@ function parsePlayerList(str) {
 function findBetween(str, left, right = undefined, flags = '', multiline = false) {
     if(right != undefined) {
         right = '(?:' + right + ')';
-    } else { 
+    } else {
         right = '';
     }
 
@@ -455,7 +490,7 @@ function matchAndReturnGroup(str, regex, group = 1) {
     var match = str.match(regex);
     if(match != null && match != undefined) {
         return match[group].trim();
-    } 
+    }
 
     return 'no match';
 }

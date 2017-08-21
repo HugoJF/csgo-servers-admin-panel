@@ -65,4 +65,5 @@ Route::group(['middleware' => 'check-steam-login'], function () {
      * Daemon
      */
     Route::get('/daemon-logs/', 'DaemonController@logs')->name('daemon-logs');
+
 });

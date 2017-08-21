@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "bdfdd0a79b73cc01a1a742310060f3b1",
+    "content-hash": "e7124b1944e572413ed3bcfc4fa593ab",
     "packages": [
         {
             "name": "dnoegel/php-xdg-base-dir",
@@ -147,6 +147,56 @@
                 "parser"
             ],
             "time": "2017-03-29T16:04:15+00:00"
+        },
+        {
+            "name": "gbrock/laravel-table",
+            "version": "0.3.4",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/gbrock/laravel-table.git",
+                "reference": "de157db1842d99972ad7c8a9fe86135aaa5cfa41"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/gbrock/laravel-table/zipball/de157db1842d99972ad7c8a9fe86135aaa5cfa41",
+                "reference": "de157db1842d99972ad7c8a9fe86135aaa5cfa41",
+                "shasum": ""
+            },
+            "require": {
+                "laravel/framework": "5.*",
+                "php": ">=5.3.0"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "4.5.*"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Gbrock\\Table\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Greg Brock",
+                    "email": "contact@gbrock.com",
+                    "homepage": "http://gbrock.com",
+                    "role": "Developer"
+                }
+            ],
+            "description": "Table functionality for Laravel models",
+            "keywords": [
+                "filtering",
+                "html",
+                "laravel",
+                "model",
+                "sorting",
+                "table"
+            ],
+            "time": "2015-10-16T19:12:06+00:00"
         },
         {
             "name": "guzzlehttp/guzzle",
