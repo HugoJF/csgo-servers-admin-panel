@@ -257,13 +257,11 @@ var DaemonLogs = sequelize.define('daemon_logs', {
 Server.hasMany(Stats, {foreignKey: 'server_id'});
 Stats.belongsTo(Server, {foreignKey: 'server_id'});
 
-notifyConnectionError(0, 15);
-console.log('notified?');
 
 sequelize.sync({
     alter: false
 }).then(function () {
-    sendEmail('Daemon is up and running again');
+    sendEmail('Daemon is up and running again', "we are running dude");
     Server.findAll().then(function(serversQuery) {
         servers = serversQuery;
         console.log('Servers table acquired!');
