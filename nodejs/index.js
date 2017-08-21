@@ -7,6 +7,7 @@ var request   = require('request');
 var Sequelize = require('sequelize');
 var fs        = require('fs');
 var util      = require('util');
+var sq        = require('querystring');
 
 
 /*************
@@ -252,7 +253,8 @@ var DaemonLogs = sequelize.define('daemon_logs', {
 Server.hasMany(Stats, {foreignKey: 'server_id'});
 Stats.belongsTo(Server, {foreignKey: 'server_id'});
 
-
+notifyConnectionError(0, 15);
+console.log('notified?');
 
 sequelize.sync({
     alter: false
@@ -317,23 +319,25 @@ function createConnection(id, ip, port, rcon_password) {
 
 function notifyConnectionError(i, deltaTime) {
     var postData = {
-        ip: servers[i].ip,
-        deltaType: deltaTime
+        from: "FROM",
+        to: "TO",
+        subject: "Server is offline for " + Math.round(deltaTime) + "minutes",
+        text: 'ya that sucks'
     };
 
     var options = {
-        url: '',
+        url: 'ENDPOINT',
         method: 'POST',
         headers: {
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/x-www-form-urlencoded'
         },
-        json: postData
+        qs: postData
     };
 
     request(options, function(err, res, body) {
-        if (res && (res.statusCode === 200 || res.statusCode === 201)) {
-            console.log(body);
-        }
+        console.log(body);
+        console.log('err: ' + err);
+        console.log('res: ' + res);
     });
 }
 
