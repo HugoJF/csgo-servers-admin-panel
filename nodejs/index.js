@@ -310,7 +310,7 @@ function createConnection(id, ip, port, rcon_password) {
             connections[i].connect();
             var deltaTime = ((new Date).getTime() - connectionLastSeen[i]) / 1000 / 60;
 
-            if(Math.round(deltaTime) > offlineNotificationIntervals[errorNotifications[i]]) {
+            if(Math.round(deltaTime) >= offlineNotificationIntervals[errorNotifications[i]]) {
                 console.log('Sending notifications that server is offline');
                 notifyConnectionError(i, Math.round(deltaTime))
                 errorNotifications[i]++;
