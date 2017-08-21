@@ -280,9 +280,9 @@ sequelize.sync({
 
 function openConnections() {
     for(var index = 0; index < servers.length; index++) {
+        connectionLastSeen[index] = (new Date).getTime();
         connections[index] = createConnection(index, servers[index].ip, servers[index].port, servers[index].rcon_password);
         connections[index].connect();
-        connectionLastSeen[index] = (new Date).getTime();
     }
 }
 
