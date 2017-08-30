@@ -544,7 +544,7 @@ function log(message, log, type = undefined) {
     }
 
     var content = {
-        message: message,
+        message: message.toString(),
         log: log,
         type: type,
     };
