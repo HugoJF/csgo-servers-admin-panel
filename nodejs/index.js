@@ -8,6 +8,7 @@ var Sequelize = require('sequelize');
 var fs        = require('fs');
 var util      = require('util');
 var sq        = require('querystring');
+var env       = require('dotenv').config();
 
 
 /*************
@@ -24,9 +25,9 @@ var DB_HOST        = 'localhost';
 var DB_PORT        = 3306;
 var DB_TIMEOUT     = 5;
 
-var EMAIL_FROM = '';
-var EMAIL_TO = '';
-var EMAIL_URL = '';
+var EMAIL_FROM = process.env.EMAIL_FROM;
+var EMAIL_TO = process.env.EMAIL_TO;
+var EMAIL_URL = process.env.EMAIL_URL;
 
 
 /*********************

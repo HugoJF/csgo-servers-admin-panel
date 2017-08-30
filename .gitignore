@@ -12,3 +12,4 @@ npm-debug.log
 /nodejs/logs
 /nodejs/logslogs.log
 /nodejs/node_modules/*
+/nodejs/.env

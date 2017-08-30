@@ -9,6 +9,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "dotenv": "^4.0.0",
     "srcds-log-receiver": "^1.0.0"
   }
 }
