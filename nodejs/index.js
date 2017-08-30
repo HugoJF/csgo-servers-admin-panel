@@ -52,7 +52,8 @@ var usingAlternativeIP = false;
 var sequelize = new Sequelize(DB_TABLE, DB_USER, DB_PASS, {
     host: DB_HOST,
     port: DB_PORT,
-    logging: false
+    logging: false,
+    dialect: 'mysql',
 });
 
 
