@@ -315,7 +315,7 @@ function createConnection(id, ip, port, rcon_password) {
         }).on('error', function(err) {
             console.log("ERROR: " + err);
             console.log('Trying to reopen connection to server ' + id);
-            log('Error caught on server ' + id + ', recreating connection...', err);
+            log('Error caught on server ' + id + ' using Alternative: ' + usingAlternativeIP + ', recreating connection...', err);
 
             connectionNotRespondingHandler(id);
 
