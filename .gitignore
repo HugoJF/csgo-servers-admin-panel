@@ -9,3 +9,6 @@ Homestead.json
 Homestead.yaml
 npm-debug.log
 .env
+/nodejs/logs
+/nodejs/logslogs.log
+/nodejs/node_modules/*

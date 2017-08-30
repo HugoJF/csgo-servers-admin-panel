@@ -36,8 +36,8 @@ var EMAIL_URL = '';
 var servers = [];
 var connections = [];
 var connectionLastSeen = [];
-var errorNotifications = [];
-var offlineNotificationIntervals = [1, 5, 10, 15, 20, 30, 45, 60];
+var errorNotificationsIndex = [];
+var offlineNotificationIntervals = [1, 5, 10, 15, 20, 30, 45, 60, 120];
 
 
 /********************
@@ -288,42 +288,49 @@ function createConnection(id, ip, port, rcon_password) {
     var connection = new Rcon(ip, port, rcon_password);
 
 
-    (function (i, ip, port, rcon_password){
+    (function (id, ip, port, rcon_password){
         connection.on('auth', function() {
-            console.log("Authed on server " + i + "!");
-            log('Authenticated on server ' + i);
+            console.log("Authed on server " + id + "!");
+            log('Authenticated on server ' + id);
 
         }).on('response', function(str) {
-            processResponse(str, i);
-            connectionLastSeen[i] = (new Date).getTime();
-			if(errorNotifications[i] > 0) {
+            processResponse(str, id);
+            connectionLastSeen[id] = (new Date).getTime();
+			if(errorNotificationsIndex[id] > 0) {
 				sendEmail('Server is back online', 'yup back online PogoChampo');
 				console.log('server is back online');
+                errorNotificationsIndex[id] = 0;
 			}
-            errorNotifications[i] = 0;
 
         }).on('end', function(err) {
-          console.log("Socket " + i + " closed!");
-          log('Socket from server ' + i + ' got closed', err);
+            console.log("Socket " + id + " closed!");
+            log('Socket from server ' + id + ' got closed', err);
+
+            connectionNotRespondingHandler(id);
 
         }).on('error', function(err) {
             console.log("ERROR: " + err);
-            console.log('Trying to reopen connection to server ' + i);
-            log('Error caught on server ' + i + ', recreating connection...', err);
-            connections[i] = createConnection(i, ip, port, rcon_password);
-            connections[i].connect();
-            var deltaTime = ((new Date).getTime() - connectionLastSeen[i]) / 1000 / 60;
+            console.log('Trying to reopen connection to server ' + id);
+            log('Error caught on server ' + id + ', recreating connection...', err);
 
-            if(Math.round(deltaTime) >= offlineNotificationIntervals[errorNotifications[i]]) {
-                console.log('Sending notifications that server is offline');
-                notifyConnectionError(i, Math.round(deltaTime))
-                errorNotifications[i]++;
-            }
+            connectionNotRespondingHandler(id);
 
+            connections[id] = createConnection(id, ip, port, rcon_password);
+            connections[id].connect();
         });
     })(id, ip, port, rcon_password)
 
     return connection;
+}
+
+function connectionNotRespondingHandler(id) {
+    var deltaTime = ((new Date).getTime() - connectionLastSeen[id]) / 1000 / 60;
+
+    if(Math.round(deltaTime) >= offlineNotificationIntervals[errorNotificationsIndex[id]]) {
+        console.log('Sending notifications that server is offline');
+        notifyConnectionError(id, Math.round(deltaTime))
+        errorNotificationsIndex[id]++;
+    }
 }
 
 function notifyConnectionError(i, deltaTime) {
