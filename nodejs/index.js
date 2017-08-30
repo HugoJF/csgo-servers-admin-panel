@@ -39,6 +39,10 @@ var connectionLastSeen = [];
 var errorNotificationsIndex = [];
 var offlineNotificationIntervals = [1, 5, 10, 15, 20, 30, 45, 60, 120];
 
+var alternativeIP = '177.54.147.34';
+var alternativePort = 27086;
+var usingAlternativeIP = false;
+
 
 /********************
 ** INITIALIZATIONS **
@@ -315,10 +319,16 @@ function createConnection(id, ip, port, rcon_password) {
 
             connectionNotRespondingHandler(id);
 
-            connections[id] = createConnection(id, ip, port, rcon_password);
+            usingAlternativeIP = !usingAlternativeIP;
+
+            if(usingAlternativeIP) {
+                connections[id] = createConnection(id, alternativeIP, alternativePort, rcon_password);
+            } else {
+                connections[id] = createConnection(id, ip, port, rcon_password);
+            }
             connections[id].connect();
         });
-    })(id, ip, port, rcon_password)
+    })(id, ip, port, rcon_password);
 
     return connection;
 }
